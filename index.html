@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Connect4 Notes" />
+    <meta name="theme-color" content="#0b1020" />
+
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="stylesheet" href="./style.css" />
+
+    <title>Connect4 Notes</title>
+  </head>
+  <body>
+    <div class="app" id="appRoot">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand__title">Connect 4</div>
+          <div class="brand__subtitle">Game Review · Notes</div>
+        </div>
+
+        <div class="topActions"></div>
+      </header>
+
+      <main class="main">
+        <section class="stage">
+          <div class="stage__hud">
+            <div class="turn">
+              <span class="turn__dot" id="turnDot" aria-hidden="true"></span>
+              <span class="turn__text" id="turnText">Red to move</span>
+            </div>
+          </div>
+
+          <div class="boardWrap" id="boardWrap">
+            <div class="ghostRow" id="ghostRow" aria-hidden="true"></div>
+
+            <div class="boardArea" aria-label="Board area">
+              <div class="boardCore">
+                <div class="rowMarkers" aria-hidden="true">
+                  <span class="rowMarker rowMarker--e">E</span>
+                  <span class="rowMarker rowMarker--o">O</span>
+                  <span class="rowMarker rowMarker--e">E</span>
+                  <span class="rowMarker rowMarker--o">O</span>
+                  <span class="rowMarker rowMarker--e">E</span>
+                  <span class="rowMarker rowMarker--o">O</span>
+                </div>
+                <div class="layers">
+                  <canvas id="boardCanvas" class="layer layer--pieces" width="1400" height="1200" aria-label="Pieces layer"></canvas>
+                  <canvas id="frameCanvas" class="layer layer--frame" width="1400" height="1200" aria-label="Board frame layer" aria-hidden="true"></canvas>
+                  <canvas id="noteCanvas" class="layer layer--note" width="1400" height="1200" aria-label="Notes canvas"></canvas>
+                  <div id="hitLayer" class="layer logical-grid" aria-hidden="true"></div>
+                </div>
+              </div>
+              <div class="colLabels" id="colLabels" aria-hidden="true">
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="sidebar" aria-label="Analysis timeline">
+          <div class="sidebar__header">
+            <div class="sidebar__meta">
+              <div class="sidebar__title">Analysis Timeline</div>
+              <div class="sidebar__subtitle">Click any move to jump</div>
+            </div>
+            <div class="travel sidebar__travel">
+              <button class="btn" id="btnPrev" type="button" title="Previous">&lt; Prev</button>
+              <div class="travel__pos" aria-hidden="true"><span id="stepNow">0</span>/<span id="stepMax">0</span></div>
+              <button class="btn" id="btnNext" type="button" title="Next">Next &gt;</button>
+            </div>
+          </div>
+          <ol class="timeline" id="timeline"></ol>
+        </aside>
+      </main>
+    </div>
+
+    <div class="assistiveOverlay" id="assistiveOverlay" aria-hidden="true"></div>
+    <div class="assistive" id="assistive" data-side="right" aria-label="Floating tools">
+      <button class="assistiveBall" id="assistiveBall" type="button" aria-label="Open tools panel"></button>
+
+      <div class="assistivePanel" id="assistivePanel" role="dialog" aria-label="Tools panel" aria-hidden="true">
+        <div class="assistivePanel__row">
+          <button class="tool tool--active" id="toolFinger" type="button" aria-label="Pointer">👆</button>
+          <button class="tool" id="toolPen" type="button">Pen</button>
+          <button class="tool" id="toolEraser" type="button">Eraser</button>
+        </div>
+
+        <div class="assistivePanel__row colors" aria-label="Colors">
+          <button class="swatch swatch--active" data-color="#ff3b30" style="--c:#ff3b30" type="button" aria-label="Red"></button>
+          <button class="swatch" data-color="#ffd60a" style="--c:#ffd60a" type="button" aria-label="Yellow"></button>
+          <button class="swatch" data-color="#34c759" style="--c:#34c759" type="button" aria-label="Green"></button>
+          <button class="swatch" data-color="#0a84ff" style="--c:#0a84ff" type="button" aria-label="Blue"></button>
+          <button class="swatch" data-color="#ffffff" style="--c:#ffffff" type="button" aria-label="White"></button>
+          <button class="swatch" data-color="#1c1c1e" style="--c:#1c1c1e" type="button" aria-label="Black"></button>
+        </div>
+
+        <div class="assistivePanel__row">
+          <button class="tool" id="btnNoteUndo" type="button" aria-label="Undo stroke">↶</button>
+          <button class="tool" id="btnNoteRedo" type="button" aria-label="Redo stroke">↷</button>
+          <label class="size">
+            <span class="size__label">Size</span>
+            <input id="sizeSlider" type="range" min="2" max="30" value="10" />
+          </label>
+          <button class="tool tool--danger" id="btnClear" type="button" aria-label="Clear current note (long press 3s to clear all)">
+            Clear
+          </button>
+          <button class="tool" id="btnPanelClose" type="button" aria-label="Close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
