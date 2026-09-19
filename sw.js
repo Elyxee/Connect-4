@@ -1,5 +1,14 @@
-const CACHE_NAME = "c4-notes-v1";
-const ASSETS = ["./", "./index.html", "./style.css", "./app.js", "./manifest.json"];
+const CACHE_NAME = "c4-notes-v3";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./style.css",
+  "./app.js",
+  "./manifest.json",
+  "./board-art.png",
+  "./assets/red-chip.png",
+  "./assets/yellow-chip.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -22,17 +31,17 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
+
+  // Network-first so asset format fixes (and CSS) aren't stuck behind stale SW cache.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request)
-        .then((res) => {
+    fetch(request)
+      .then((res) => {
+        if (res && res.ok && request.url.startsWith(self.location.origin)) {
           const copy = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return res;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
+        }
+        return res;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || caches.match("./index.html")))
   );
 });
-
