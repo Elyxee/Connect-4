@@ -59,7 +59,6 @@ Swipes, arrow keys, Back, Live Clock and New already handle any number of modes.
 | `scripts/` | `bump-version.cjs` and the artwork preparation tools |
 | `tests/` | Logic tests and browser checks (see `tests/README.md`) |
 | `ios/` | Xcode project for the WKWebView shell |
-| `backups/`, `previews/` | Earlier snapshot and visual recordings |
 
 `index.html`, `manifest.json` and `sw.js` stay at the root as browser/PWA entry
 points. `PRD.md` describes an earlier version; some of its paths are outdated.
