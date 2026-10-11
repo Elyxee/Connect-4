@@ -6,6 +6,9 @@ const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./assets/icons/icon-180.png",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
 
   // Code (same order as index.html)
   "./src/style.css?v=48",
