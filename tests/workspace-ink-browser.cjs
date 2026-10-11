@@ -1,7 +1,7 @@
-const {chromium}=require('playwright');const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
-const root=path.resolve(__dirname,'..'),out='/private/tmp/c4-notes-v32-shots';fs.mkdirSync(out,{recursive:true});
-const server=http.createServer((req,res)=>{try{const url=new URL(req.url,'http://localhost'),p=path.join(root,url.pathname==='/'?'index.html':url.pathname);const data=fs.readFileSync(p);res.writeHead(200,{'Content-Type':{'.js':'text/javascript','.css':'text/css','.html':'text/html','.png':'image/png','.svg':'image/svg+xml','.json':'application/json','.ttf':'font/ttf'}[path.extname(p)]||'application/octet-stream'});res.end(data);}catch{res.writeHead(404);res.end();}});
-(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH});try{
+const path=require('node:path'),assert=require('node:assert/strict');
+const {createServer,launch,shotDir}=require('./helpers/browser.cjs');
+const out=shotDir('workspace-ink'),server=createServer();
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await launch();try{
 const page=await browser.newPage({viewport:{width:1194,height:834},hasTouch:true,serviceWorkers:'block'}),errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto(`http://127.0.0.1:${server.address().port}/`);await page.waitForSelector('#bootScreen',{state:'hidden'});await page.click('#home-new');await page.waitForSelector('#cloudTransition',{state:'hidden'});await page.clock.install();
 

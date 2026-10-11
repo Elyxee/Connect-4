@@ -1,8 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const vm = require('node:vm');
-const fs = require('node:fs');
-const path = require('node:path');
+const { loadScripts } = require('./helpers/load.cjs');
 
 function fixture() {
   const pending = [], events = {};
@@ -14,9 +12,8 @@ function fixture() {
   const body={dataset:{screen:'home'},classList:{add(){},remove(){}}};
   const window={addEventListener(){}};
   const document={body,images:[],fonts:{ready:Promise.resolve()},getElementById:id=>nodes[id],addEventListener:(type,fn)=>{(events[type]||=[]).push(fn);}};
-  const context=vm.createContext({window,document,performance:{now:()=>1000},matchMedia:()=>({matches:false}),
-    Image:class{decode(){return Promise.resolve();}},setTimeout:fn=>{queueMicrotask(fn);return 1;},requestAnimationFrame:fn=>queueMicrotask(fn)});
-  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/experience.js'),'utf8'),context);
+  loadScripts({window,document,performance:{now:()=>1000},matchMedia:()=>({matches:false}),
+    Image:class{decode(){return Promise.resolve();}},setTimeout:fn=>{queueMicrotask(fn);return 1;},requestAnimationFrame:fn=>queueMicrotask(fn)},['config','experience']);
   return {api:window.AppExperience,pending,home,game,boot,curtain,body,events};
 }
 const flush=async()=>{for(let i=0;i<25;i++)await Promise.resolve();};

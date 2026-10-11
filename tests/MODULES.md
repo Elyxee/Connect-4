@@ -2,6 +2,8 @@
 
 Fresh load and New reset the module to the Game Clock cover. Arrows, swipes and
 left/right keys switch covers; click a logo to enter. Modes returns to covers.
+Any number of modes is supported; README.md ("Adding a bottom-right module")
+describes the markup and the controller hooks in src/modules.js.
 
 The normal board permits variations while no timed session exists. Opening
 Clock settings gates placement until a preset is selected. A used board must
@@ -11,6 +13,7 @@ restriction across module navigation. Switching to Orbit never pauses the
 clock. The Live Clock badge returns to it; after expiry it reads Clock result.
 New resets the board, clock, Orbit and picker together.
 
+Orbit numbers below are the defaults in CONFIG.orbit (src/config.js).
 Orbit starts with no lives. First four targets are white; thereafter probabilities
 shift from white to gold to predominantly red. Speed follows a saturating curve
 with bounded per-round variation; direction changes only on a new round. A

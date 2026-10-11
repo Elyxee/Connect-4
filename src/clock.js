@@ -1,9 +1,5 @@
-/* Timed play follows committed GameNodes; browsing the tree never moves the clock. */
-const CLOCK_PRESETS = Object.freeze({
-  "5+5": { minutes: 5, increment: 5 },
-  "10+3": { minutes: 10, increment: 3 },
-  "15+0": { minutes: 15, increment: 0 },
-});
+/* Game clock: timed play follows committed GameNodes; browsing the tree never
+   moves the clock. Presets and thresholds live in CONFIG.clock. */
 
 class GameClock {
   constructor(game, now = null) {
@@ -30,7 +26,7 @@ class GameClock {
   }
 
   start(presetId) {
-    const preset = CLOCK_PRESETS[presetId];
+    const preset = CONFIG.clock.presets[presetId];
     if (this.status !== "setup" || !preset) return false;
     this.preset = presetId;
     this.remaining = { [Player.Red]: preset.minutes * 60000, [Player.Yellow]: preset.minutes * 60000 };
@@ -82,13 +78,15 @@ class GameClock {
   }
 }
 
+/* Renders a GameClock into #gameClock: preset picker, the two running times
+   over the active-side artwork, and the result card. */
 class GameClockView {
-  constructor(element, clock, onExpire) {
+  constructor(element, clock, { onExpire, onPreset }) {
     this.element = element;
     this.clock = clock;
-    this.onExpire = onExpire;
     this.art = element.querySelector(".clock__art");
     this.setup = element.querySelector(".clock__setup");
+    this.presetButtons = this.renderPresets(element.querySelector(".clock__presets"), onPreset);
     this.returnButton = element.querySelector(".clock__return");
     this.caption = element.querySelector(".clock__caption");
     this.redTime = element.querySelector(".clock__time--red");
@@ -117,6 +115,21 @@ class GameClockView {
     this.render();
   }
 
+  renderPresets(container, onPreset) {
+    const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+    return Object.entries(CONFIG.clock.presets).map(([id, { minutes, increment }]) => {
+      const button = document.createElement("button");
+      button.className = "clock__preset";
+      button.type = "button";
+      button.dataset.clockPreset = id;
+      button.setAttribute("aria-label", `Start: ${plural(minutes, "minute")} each, ${increment ? `${plural(increment, "second")} increment` : "no increment"}`);
+      button.innerHTML = `<strong>${minutes} <small>min</small></strong><span>${increment ? `+${increment} sec` : "No increment"}</span>`;
+      button.addEventListener("click", () => onPreset(id));
+      container.appendChild(button);
+      return button;
+    });
+  }
+
   format(milliseconds) {
     const seconds = Math.ceil(milliseconds / 1000);
     return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
@@ -130,7 +143,7 @@ class GameClockView {
     const incoming = document.createElement("div");
     incoming.className = "clock__image-layer";
     const img = document.createElement("img");
-    img.src = `./assets/clock/${asset}.png`;
+    img.src = `${CONFIG.assets.clockArtDir}${asset}.png`;
     img.alt = "";
     img.draggable = false;
     if (asset === "red-active") img.className = "clock__image--mirrored";
@@ -180,7 +193,7 @@ class GameClockView {
       const time = clock.timeLeft(player, now);
       element.textContent = this.format(time);
       element.setAttribute("aria-label", `${playerName(player)}: ${element.textContent}${player === clock.runningPlayer ? ", running" : ", stopped"}`);
-      element.classList.toggle("is-low", player === clock.runningPlayer && time <= 10000);
+      element.classList.toggle("is-low", player === clock.runningPlayer && time <= CONFIG.clock.lowTime);
     }
     this.result.hidden = !finished;
     if (finished) {

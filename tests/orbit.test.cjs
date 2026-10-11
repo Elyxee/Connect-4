@@ -1,5 +1,6 @@
-const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
-const ctx=vm.createContext({});vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/orbit.js'),'utf8')+'\nthis.OrbitGame=OrbitGame;',ctx);
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm');
+const {loadScripts}=require('./helpers/load.cjs');
+const ctx=loadScripts({},['config','orbit']);vm.runInContext('this.OrbitGame=OrbitGame;',ctx);
 const make=()=>new ctx.OrbitGame(()=>.5);
 function hit(g,color='white'){if(!g.target)g.advance(g.transition);g.target.color=color;g.advance((g.target.distance+g.target.width/2-g.target.travel)/g.speed);g.tap();}
 test('zero lives: empty tap or skipped target ends the run exactly once',()=>{

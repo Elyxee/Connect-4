@@ -1,3 +1,5 @@
 .DS_Store
 .vite/
 node_modules/
+# Xcode per-user UI state
+xcuserdata/

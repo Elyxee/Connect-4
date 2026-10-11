@@ -1,0 +1,13 @@
+{
+  "name": "connect-4-live",
+  "private": true,
+  "description": "Connect 4Live: a static iPad PWA (no build step) with an iOS WKWebView shell.",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "test:browser": "for t in tests/*-browser.cjs; do echo \"$t\"; node \"$t\" || exit 1; done",
+    "bump": "node scripts/bump-version.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

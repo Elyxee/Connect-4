@@ -1,22 +1,12 @@
-const { chromium } = require(process.env.PLAYWRIGHT_PACKAGE || 'playwright');
-const http = require('node:http');
-const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const root = path.resolve(__dirname, '..');
-const out = process.env.CLOCK_SCREENSHOTS || '/private/tmp/c4-clock-shots';
-fs.mkdirSync(out, {recursive:true});
-const server = http.createServer((req,res) => {
-  const url = new URL(req.url, 'http://localhost');
-  const filename = path.join(root, decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname));
-  const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.ttf':'font/ttf','.json':'application/json'};
-  try { const data = fs.readFileSync(filename); res.writeHead(200, {'Content-Type':types[path.extname(filename)] || 'application/octet-stream'}); res.end(data); }
-  catch { res.writeHead(404); res.end(); }
-});
+const { createServer, launch, shotDir } = require('./helpers/browser.cjs');
+const out = shotDir('clock');
+const server = createServer();
 
 (async () => {
   await new Promise(resolve => server.listen(0,'127.0.0.1',resolve));
-  const browser = await chromium.launch({headless:true, executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH});
+  const browser = await launch();
   try {
     const page = await browser.newPage({viewport:{width:1194,height:834},serviceWorkers:'block'});
     const errors = [];

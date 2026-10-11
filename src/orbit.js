@@ -1,40 +1,46 @@
-/* Orbit's simulation is independent of the Connect Four tree and game clock.
-   Degrees are unwrapped per round, so a dropped frame cannot skip a MISS. */
+/* Orbit mini-game: tap when the moving hand crosses the coloured target.
+   The simulation is independent of the Connect Four tree and game clock.
+   Degrees are unwrapped per round, so a dropped frame cannot skip a MISS.
+   Tuning lives in CONFIG.orbit. */
 class OrbitGame {
   constructor(random = Math.random) { this.random = random; this.reset(); }
   reset() {
-    this.status = 'ready'; this.hits = 0; this.streak = 0; this.elapsed = 0;
-    this.angle = -90; this.direction = 1; this.speed = 80; this.target = null;
+    const T = CONFIG.orbit;
+    this.status = 'ready'; this.hits = 0; this.elapsed = 0;
+    this.angle = T.startAngle; this.direction = 1; this.speed = T.speed.base; this.target = null;
     this.rewardSlot = null; this.bonusLife = false;
-    this.transition = 0; this.events = []; this.colorHits = {white:0,gold:0,red:0};
-    this.lives = ['white','white','white','gold','gold','red'].map(color => ({color,state:'ghost',progress:0}));
+    this.transition = 0; this.events = [];
+    this.colorHits = Object.fromEntries(Object.keys(T.hitsPerLife).map(color => [color, 0]));
+    this.lives = T.lifeSlots.map(color => ({color,state:'ghost',progress:0}));
   }
   start() { this.reset(); this.status = 'running'; this.spawn(); }
   pause() { if (this.status === 'running') this.status = 'paused'; }
   resume() { if (this.status === 'paused') this.status = 'running'; }
+  /* Places the next target. The order of random() calls is part of the tests. */
   spawn() {
-    const difficulty = 1 - Math.exp(-this.hits / 32);
-    const late = this.hits >= 60;
-    this.speed = (80 + 180 * difficulty) * (.92 + this.random() * .16);
-    this.reverseProbability = late ? .5 : .15 + .4 * difficulty;
+    const T = CONFIG.orbit;
+    const difficulty = 1 - Math.exp(-this.hits / T.difficultyHits);
+    const late = this.hits >= T.lateGameHits;
+    this.speed = (T.speed.base + T.speed.gain * difficulty) * (T.speed.jitterMin + this.random() * T.speed.jitterRange);
+    this.reverseProbability = late ? T.reverse.late : T.reverse.base + T.reverse.gain * difficulty;
     if (this.hits && this.random() < this.reverseProbability) this.direction *= -1;
-    const reward = late && this.rewardSlot === null && !this.bonusLife && this.random() < .1;
+    const reward = late && this.rewardSlot === null && !this.bonusLife && this.random() < T.rewardChance;
     const roll = this.random();
-    const whiteProbability = .9 * Math.exp(-this.hits / 24);
-    const goldProbability = .1 + .28 * Math.exp(-Math.pow((this.hits - 28) / 28, 2));
-    const color = reward ? 'bonus' : this.hits < 4 || roll < whiteProbability ? 'white' : roll < whiteProbability + goldProbability ? 'gold' : 'red';
-    const width = {white:52,gold:30,red:18,bonus:8}[color];
+    const whiteProbability = T.odds.white * Math.exp(-this.hits / T.odds.whiteDecayHits);
+    const goldProbability = T.odds.gold + T.odds.goldPeak * Math.exp(-Math.pow((this.hits - T.odds.goldPeakHits) / T.odds.goldPeakHits, 2));
+    const color = reward ? 'bonus' : this.hits < T.whiteOnlyHits || roll < whiteProbability ? 'white' : roll < whiteProbability + goldProbability ? 'gold' : 'red';
+    const width = T.targetWidth[color];
     // A slow round is chosen before placement, never halfway through a target.
     // Its near target still respects a real time-based reaction window.
-    const slow = late && this.random() < .12;
-    if (slow) this.speed *= .42 + this.random() * .13;
-    const reaction = .85 - .5 * difficulty;
-    const minimum = this.speed * reaction + 12;
-    const far = !slow && this.hits >= 8 && this.random() < .25;
-    const maximum = 360 - width - 6;
+    const slow = late && this.random() < T.slowRound.chance;
+    if (slow) this.speed *= T.slowRound.speedMin + this.random() * T.slowRound.speedRange;
+    const reaction = T.reaction.start - T.reaction.reduction * difficulty;
+    const minimum = this.speed * reaction + T.reaction.margin;
+    const far = !slow && this.hits >= T.farTarget.afterHits && this.random() < T.farTarget.chance;
+    const maximum = 360 - width - T.lapMargin;
     const distance = far
-      ? Math.max(minimum, maximum - 35 + this.random() * 35)
-      : Math.min(maximum, minimum + this.random() * (slow ? 30 : 110));
+      ? Math.max(minimum, maximum - T.farTarget.window + this.random() * T.farTarget.window)
+      : Math.min(maximum, minimum + this.random() * (slow ? T.nearSpread.slow : T.nearSpread.normal));
     this.target = {color,width,distance,travel:0,angle:this.angle + this.direction * (distance + width/2),reaction,slow,far};
   }
 
@@ -63,7 +69,7 @@ class OrbitGame {
     if (this.status !== 'running' || !this.target || this.transition > 0) return;
     const t=this.target;
     if (t.travel < t.distance || t.travel > t.distance+t.width) return this.miss('empty');
-    this.hits++; this.streak++;
+    this.hits++;
     if (t.color === 'bonus') {
       const index = this.lives.findIndex(l => l.state !== 'active');
       if (index < 0) this.bonusLife = true;
@@ -73,45 +79,47 @@ class OrbitGame {
         this.events.push({type:'life',index,color:this.lives[index].color});
       }
       this.events.push({type:'hit',color:'bonus'});
-      this.target=null; this.transition=.16;
+      this.target=null; this.transition=CONFIG.orbit.hitPause;
       return;
     }
     this.colorHits[t.color]++;
-    const thresholds={white:5,gold:3,red:1};
+    const thresholds=CONFIG.orbit.hitsPerLife;
     const slots=this.lives.filter(l=>l.color===t.color);
     slots.forEach((life,index)=>{
       if (life.state !== 'ghost') return;
       life.progress=Math.max(0,Math.min(1,(this.colorHits[t.color]-index*thresholds[t.color])/thresholds[t.color]));
       if (life.progress===1) {life.state='active';this.events.push({type:'life',index:this.lives.indexOf(life),color:t.color});}
     });
-    this.events.push({type:'hit',color:t.color}); this.target=null; this.transition=.16;
+    this.events.push({type:'hit',color:t.color}); this.target=null; this.transition=CONFIG.orbit.hitPause;
   }
   miss(reason) {
     // Reward targets are optional: neither a stray tap nor a pass costs a life.
     if (this.target?.color === 'bonus') {
-      this.streak=0; this.events.push({type:'safe',reason});
-      this.target=null; this.transition=.22; return;
+      this.events.push({type:'safe',reason});
+      this.target=null; this.transition=CONFIG.orbit.missPause; return;
     }
     // The glowing logo is a seventh shield and is always spent first.
     if (this.bonusLife) {
-      this.bonusLife=false; this.streak=0;
+      this.bonusLife=false;
       this.events.push({type:'miss',reason,index:-1});
-      this.target=null; this.transition=.22; return;
+      this.target=null; this.transition=CONFIG.orbit.missPause; return;
     }
     const index=this.lives.findIndex(l=>l.state==='active');
-    this.streak=0; this.events.push({type:'miss',reason,index}); this.target=null;
+    this.events.push({type:'miss',reason,index}); this.target=null;
     if (index < 0) { this.status='over'; this.events.push({type:'over'}); }
-    else {this.lives[index].state='spent';if(this.rewardSlot===index)this.rewardSlot=null;this.transition=.22;}
+    else {this.lives[index].state='spent';if(this.rewardSlot===index)this.rewardSlot=null;this.transition=CONFIG.orbit.missPause;}
   }
 }
 
+/* Renders an OrbitGame into the .orbit pane: dial canvas, stats, life rack,
+   feedback and the start/pause overlay. onHitTarget(kind) fires on hit/miss. */
 class OrbitView {
   constructor(element, onHitTarget) {
     this.element=element; this.game=new OrbitGame(); this.canvas=element.querySelector('canvas');
     this.ctx=this.canvas.getContext('2d'); this.overlay=element.querySelector('.orbit__overlay');
     this.action=element.querySelector('.orbit__action'); this.message=element.querySelector('.orbit__message');
     this.stats=element.querySelector('.orbit__stats'); this.feedback=element.querySelector('.orbit__feedback');
-    this.lives=[...element.querySelectorAll('.orbit__life')]; this.onHitTarget=onHitTarget;
+    this.lives=this.renderLives(element.querySelector('.orbit__lives')); this.onHitTarget=onHitTarget;
     this.visible=false; this.last=0; this.raf=0; this.effect=null;
     this.action.addEventListener('click',()=>{
       if(this.game.status==='paused')this.game.resume();else this.game.start();
@@ -120,6 +128,14 @@ class OrbitView {
     document.addEventListener('visibilitychange',()=>{if(document.hidden)this.pause();});
     window.addEventListener('pagehide',()=>this.pause());
     this.sync();this.draw();
+  }
+  renderLives(rack) {
+    return CONFIG.orbit.lifeSlots.map(color=>{
+      const img=document.createElement('img');
+      img.className='orbit__life';img.src=CONFIG.assets.orbitLives[color];img.alt=`${color} life`;img.draggable=false;
+      rack.appendChild(img);
+      return img;
+    });
   }
   show() { this.visible=true;this.last=performance.now();this.sync();this.draw(); }
   hide() { this.pause();this.visible=false;cancelAnimationFrame(this.raf); }
@@ -178,10 +194,11 @@ class OrbitView {
   }
   draw() {
     const ctx=this.ctx,g=this.game;const s=600;
-    // Figma artwork is 1254px square. Fit its two gold circles rather than
-    // assuming the image centre: (625.3,599.1), radii 455.4 and 511.9.
-    // The playable track follows the middle of that hollow annulus.
-    const cx=625.3*s/1254,cy=599.1*s/1254,r=483.65*s/1254;
+    // Fit the dial art's two gold circles rather than assuming the image centre
+    // (radii 455.4 and 511.9 in the art). The playable track follows the middle
+    // of that hollow annulus.
+    const D=CONFIG.orbit.dial;
+    const cx=D.cx*s/D.size,cy=D.cy*s/D.size,r=D.radius*s/D.size;
     ctx.clearRect(0,0,s,s);
     ctx.save();ctx.translate(cx,cy);
     // A dark enamel track and bright inner keyline keep the playable ring

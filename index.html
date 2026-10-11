@@ -15,7 +15,7 @@
       @media(prefers-reduced-motion:reduce){.boot__chips i{animation:none}}
     </style>
     <link rel="manifest" href="./manifest.json" />
-    <link rel="stylesheet" href="./src/style.css?v=46" />
+    <link rel="stylesheet" href="./src/style.css?v=48" />
     <link rel="preload" as="image" href="./assets/clock/setup.png" />
     <link rel="preload" as="image" href="./assets/clock/full-red.png" />
     <link rel="preload" as="image" href="./assets/clock/full-yellow.png" />
@@ -27,7 +27,7 @@
   <body data-screen="home" class="booting">
     <div class="boot" id="bootScreen" role="status" aria-live="polite"><div class="boot__chips" aria-hidden="true"><i></i><i></i><i></i></div><span>Getting ready to play…</span></div>
     <div class="cloudTransition" id="cloudTransition" hidden aria-hidden="true"><div class="cloud cloud--pink"></div><div class="cloud cloud--cream"></div><div class="cloud cloud--blue"></div></div>
-<section class="home home--vector" id="homeScreen" aria-label="Connect 4Live home"><div class="home__scene">
+<section class="home" id="homeScreen" aria-label="Connect 4Live home"><div class="home__scene">
 <svg class="home__water" viewBox="0 0 760 570" preserveAspectRatio="none" aria-hidden="true"><defs>
 <linearGradient id="home-pink" x2="1" y2="1"><stop stop-color="#ff3183"><animate attributeName="stop-color" values="#ff3183;#ff6687;#ff3183" dur="12s" repeatCount="indefinite"/></stop><stop offset="1" stop-color="#ffaad0"/></linearGradient>
 <linearGradient id="home-blue" x2="1" y2="1"><stop stop-color="#28afff"/><stop offset="1" stop-color="#5279ff"><animate attributeName="stop-color" values="#5279ff;#2cceee;#5279ff" dur="14s" repeatCount="indefinite"/></stop></linearGradient>
@@ -44,36 +44,29 @@
 <use href="#water-blue" fill="url(#home-blue)"/><use href="#water-blue" fill="url(#home-blue-dots)"/>
 <use href="#water-pink-bottom" fill="url(#home-pink)"/><use href="#water-pink-bottom" fill="url(#home-dots)"/>
 </svg>
-<div class="home__piece home__logo" style="left:15.32679%;top:16.84492%;width:68.12778%;height:23.90648%" role="img" aria-label="Connect 4Live"><img src="./assets/home/vector/logo.svg?v=46" alt="" draggable="false"/></div>
-<button class="home__piece home__button home__new" id="home-new" type="button" aria-label="New Game" style="left:26.96147%;top:42.94919%;width:44.98785%;height:16.55136%"><img src="./assets/home/vector/new.svg?v=46" alt="" draggable="false"/></button>
-<button class="home__piece home__button home__continue" id="home-continue" type="button" aria-label="Continue" style="left:30.15343%;top:59.63184%;width:38.43474%;height:11.96738%"><img src="./assets/home/vector/continue.svg?v=46" alt="" draggable="false"/></button>
-<button class="home__piece home__button home__recent" id="home-recent" type="button" aria-label="Recent Games" style="left:30.77161%;top:71.57872%;width:37.50287%;height:12.05234%"><img src="./assets/home/vector/recent.svg?v=46" alt="" draggable="false"/></button>
-<div class="home__piece home__chip-red" style="left:25.50475%;top:2.87724%;width:16.39834%;height:13.87988%" aria-hidden="true"><img src="./assets/home/vector/chip-red.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-gold" style="left:64.18922%;top:2.77412%;width:13.14353%;height:16.25307%" aria-hidden="true"><img src="./assets/home/vector/chip-gold.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__heart" style="left:7.42915%;top:41.21258%;width:9.93144%;height:12.84922%" aria-hidden="true"><img src="./assets/home/vector/heart.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__swan" style="left:0.00000%;top:57.87544%;width:29.19960%;height:38.59336%" aria-hidden="true"><img src="./assets/home/vector/swan.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__bulb" style="left:80.52292%;top:1.93303%;width:19.47708%;height:29.08191%" aria-hidden="true"><img src="./assets/home/vector/bulb.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__controller" style="left:81.20958%;top:32.93819%;width:18.79042%;height:29.21361%" aria-hidden="true"><img src="./assets/home/vector/controller.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__star-left" style="left:1.77787%;top:8.05319%;width:15.47254%;height:17.26058%" aria-hidden="true"><img src="./assets/home/vector/star-left.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__star-bottom" style="left:70.61377%;top:74.70552%;width:9.79591%;height:13.14536%" aria-hidden="true"><img src="./assets/home/vector/star-bottom.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__burst" style="left:76.04289%;top:57.14888%;width:15.67870%;height:18.66757%" aria-hidden="true"><img src="./assets/home/vector/burst.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__bubble" style="left:0.00000%;top:27.11627%;width:14.10931%;height:19.15892%" aria-hidden="true"><img src="./assets/home/vector/bubble.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-bottom" style="left:54.53538%;top:84.84508%;width:15.35314%;height:13.74799%" aria-hidden="true"><img src="./assets/home/vector/chip-bottom.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-corner" style="left:83.01552%;top:78.41244%;width:16.98448%;height:18.22599%" aria-hidden="true"><img src="./assets/home/vector/chip-corner.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-edge" style="left:0.00000%;top:47.89131%;width:7.75400%;height:13.72519%" aria-hidden="true"><img src="./assets/home/vector/chip-edge.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__bolt" style="left:92.96175%;top:61.73408%;width:7.03825%;height:17.15097%" aria-hidden="true"><img src="./assets/home/vector/bolt.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__new-rays-left" style="left:20.65552%;top:42.14604%;width:6.31385%;height:13.35254%" aria-hidden="true"><img src="./assets/home/vector/new-rays-left.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__new-rays-right" style="left:71.70756%;top:42.22729%;width:6.39256%;height:13.12735%" aria-hidden="true"><img src="./assets/home/vector/new-rays-right.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__logo-rays-left" style="left:19.17830%;top:11.62044%;width:4.42595%;height:7.17441%" aria-hidden="true"><img src="./assets/home/vector/logo-rays-left.svg?v=46" alt="" draggable="false"/></div>
-<div class="home__piece home__logo-rays-right" style="left:83.80369%;top:28.53047%;width:6.04756%;height:10.35910%" aria-hidden="true"><img src="./assets/home/vector/logo-rays-right.svg?v=46" alt="" draggable="false"/></div>
+<div class="home__piece home__logo" data-react="logo" role="img" aria-label="Connect 4Live"><img src="./assets/home/vector/logo.svg?v=48" alt="" draggable="false"/></div>
+<button class="home__piece home__button home__new" id="home-new" type="button" aria-label="New Game"><img src="./assets/home/vector/new.svg?v=48" alt="" draggable="false"/></button>
+<button class="home__piece home__button home__continue" id="home-continue" type="button" aria-label="Continue"><img src="./assets/home/vector/continue.svg?v=48" alt="" draggable="false"/></button>
+<button class="home__piece home__button home__recent" id="home-recent" type="button" aria-label="Recent Games"><img src="./assets/home/vector/recent.svg?v=48" alt="" draggable="false"/></button>
+<div class="home__piece home__chip-red" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-red.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-gold" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-gold.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__heart" data-react="heart" aria-hidden="true"><img src="./assets/home/vector/heart.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__swan" data-react="swan" aria-hidden="true"><img src="./assets/home/vector/swan.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__bulb" data-react="bulb" aria-hidden="true"><img src="./assets/home/vector/bulb.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__controller" data-react="controller" aria-hidden="true"><img src="./assets/home/vector/controller.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__star-left" data-react="star" aria-hidden="true"><img src="./assets/home/vector/star-left.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__star-bottom" data-react="star" aria-hidden="true"><img src="./assets/home/vector/star-bottom.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__burst" data-react="burst" aria-hidden="true"><img src="./assets/home/vector/burst.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__bubble" data-react="bubble" aria-hidden="true"><img src="./assets/home/vector/bubble.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-bottom" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-bottom.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-corner" data-react="edge" aria-hidden="true"><img src="./assets/home/vector/chip-corner.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-edge" data-react="edge" aria-hidden="true"><img src="./assets/home/vector/chip-edge.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__bolt" data-react="bolt" aria-hidden="true"><img src="./assets/home/vector/bolt.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__new-rays-left" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/new-rays-left.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__new-rays-right" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/new-rays-right.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__logo-rays-left" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/logo-rays-left.svg?v=48" alt="" draggable="false"/></div>
+<div class="home__piece home__logo-rays-right" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/logo-rays-right.svg?v=48" alt="" draggable="false"/></div>
 </div></section>
-    <!-- Occlude the logo with the PNG's outer silhouette, including its rounded
-         corners; enclosed holes stay occluded rather than revealing the logo. -->
-    <svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
-      <defs><clipPath id="logo-board-contour" clipPathUnits="objectBoundingBox">
-        <path clip-rule="evenodd" d="M -2 -2 H 4 V 8 H -2 Z M 0.850586 0.893827 L 0.861226 0.909996 L 0.868066 0.934248 L 0.873386 0.962543 L 0.876426 0.986796 L 0.880226 1.047428 L 0.880226 4.584292 L 0.877946 4.628756 L 0.871866 4.681304 L 0.865026 4.713641 L 0.854386 4.737893 L 0.048798 4.737893 L 0.038159 4.713641 L 0.029799 4.673219 L 0.024479 4.624714 L 0.021439 4.547913 L 0.021439 1.083807 L 0.022199 1.079765 L 0.022199 1.047428 L 0.024479 1.007007 L 0.026759 0.982754 L 0.032079 0.946375 L 0.041959 0.909996 L 0.053358 0.893827 Z" />
-      </clipPath></defs>
-    </svg>
     <div class="app" id="appRoot" inert aria-hidden="true">
       <button id="btnHome" class="homeReturn" type="button" aria-label="Return to Home" title="Return to Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7L17 17M17 7L7 17"/></svg></button>
       <div class="appBg" aria-hidden="true">
@@ -83,8 +76,8 @@
       <main class="main">
         <section class="stage">
           <div class="brandLogo" role="img" aria-label="Connect 4Live">
-            <img class="brandLogo__connect" src="./assets/figma/main-connect-sharp.svg?v=46" alt="" draggable="false" />
-            <img class="brandLogo__live" src="./assets/figma/main-4live-sharp.svg?v=46" alt="" draggable="false" />
+            <img class="brandLogo__connect" src="./assets/figma/main-connect-sharp.svg?v=48" alt="" draggable="false" />
+            <img class="brandLogo__live" src="./assets/figma/main-4live-sharp.svg?v=48" alt="" draggable="false" />
           </div>
 
           <div class="boardWrap" id="boardWrap">
@@ -92,14 +85,6 @@
 
             <div class="boardArea" aria-label="Board area">
               <div class="boardCore">
-                <div class="rowMarkers" aria-hidden="true">
-                  <span class="rowMarker rowMarker--e">E</span>
-                  <span class="rowMarker rowMarker--o">O</span>
-                  <span class="rowMarker rowMarker--e">E</span>
-                  <span class="rowMarker rowMarker--o">O</span>
-                  <span class="rowMarker rowMarker--e">E</span>
-                  <span class="rowMarker rowMarker--o">O</span>
-                </div>
                 <div class="layers">
                   <canvas id="boardCanvas" class="layer layer--pieces" width="1400" height="1200" aria-label="Pieces layer"></canvas>
                   <canvas id="frameCanvas" class="layer layer--frame" width="1400" height="1200" aria-label="Board frame layer" aria-hidden="true"></canvas>
@@ -113,7 +98,7 @@
           </div>
         </section>
 
-        <img class="analysis__swan" src="./assets/figma/swan-painter.png?v=23" alt="" draggable="false" aria-hidden="true" />
+        <img class="analysis__swan" src="./assets/figma/swan-painter.png?v=48" alt="" draggable="false" aria-hidden="true" />
         <aside class="rail" aria-label="Side panels">
           <section class="analysis" aria-label="Analysis and notes" data-page="moves" data-editing="false">
 
@@ -137,7 +122,7 @@
               <button class="navBtn" id="btnPrev" type="button" title="Previous" aria-label="Previous"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6L9 12L15 18" /></svg></button>
               <button class="navBtn" id="btnNext" type="button" title="Next" aria-label="Next"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6L15 12L9 18" /></svg></button>
               <button class="navBtn" id="btnEnd" type="button" title="Last move in this line" aria-label="Jump to last move in current line"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 5V19 M6 6L13 12L6 18" /></svg></button>
-              <div class="travel__pos" aria-hidden="true"><span id="stepNow">0</span>/<span id="stepMax">0</span></div>
+              <div class="travel__pos" aria-hidden="true"><span id="stepNow">0</span></div>
             </div>
 
               </section>
@@ -167,7 +152,7 @@
             </div>
           </section>
 
-          <section class="minigame minigame--clock" id="bottomModule" aria-label="Game modules" data-module="picker">
+          <section class="minigame" id="bottomModule" aria-label="Game modules" data-module="picker">
             <div class="module__cover">
               <div class="module__track">
                 <div class="module__slide module__slide--clock">
@@ -180,15 +165,11 @@
                 </div>
               </div>
             </div>
-            <div class="clock" id="gameClock" data-state="setup" data-status="setup">
+            <div class="clock" id="gameClock" data-module-pane="clock" data-state="setup" data-status="setup">
               <div class="clock__art" aria-hidden="true"></div>
               <div class="clock__setup">
                 <h2 class="clock__heading"><img src="./assets/modules/clock-title.png" alt="Game Clock" draggable="false" /></h2>
-                <div class="clock__presets" role="group" aria-label="Choose a time control">
-                  <button class="clock__preset" type="button" data-clock-preset="5+5" aria-label="Start: 5 minutes each, 5 seconds increment"><strong>5 <small>min</small></strong><span>+5 sec</span></button>
-                  <button class="clock__preset" type="button" data-clock-preset="10+3" aria-label="Start: 10 minutes each, 3 seconds increment"><strong>10 <small>min</small></strong><span>+3 sec</span></button>
-                  <button class="clock__preset" type="button" data-clock-preset="15+0" aria-label="Start: 15 minutes each, no increment"><strong>15 <small>min</small></strong><span>No increment</span></button>
-                </div>
+                <div class="clock__presets" role="group" aria-label="Choose a time control"></div>
               </div>
               <div class="clock__new-board" hidden><span>Start a fresh board for timed play</span><button type="button">New timed game</button></div>
               <span class="clock__caption" hidden>GAME CLOCK</span>
@@ -202,17 +183,10 @@
               <button class="clock__return" type="button" hidden>Back to live game</button>
               <span class="clock__announcement sr-only" role="status" aria-live="polite"></span>
             </div>
-            <div class="orbit" hidden tabindex="0" aria-label="Orbit. Tap this panel or the game controller to hit the target.">
+            <div class="orbit" data-module-pane="orbit" hidden tabindex="0" aria-label="Orbit. Tap this panel or the game controller to hit the target.">
               <img class="orbit__logo" src="./assets/modules/orbit-logo.png" alt="Orbit" draggable="false" />
               <div class="orbit__stats">0 Hits · 0:00</div>
-              <div class="orbit__lives" aria-label="Extra lives: earn five white hits, three gold hits or one red hit">
-                <img class="orbit__life" src="./assets/modules/life-white.png" alt="white life" draggable="false" />
-                <img class="orbit__life" src="./assets/modules/life-white.png" alt="white life" draggable="false" />
-                <img class="orbit__life" src="./assets/modules/life-white.png" alt="white life" draggable="false" />
-                <img class="orbit__life" src="./assets/modules/life-gold.png" alt="gold life" draggable="false" />
-                <img class="orbit__life" src="./assets/modules/life-gold.png" alt="gold life" draggable="false" />
-                <img class="orbit__life" src="./assets/modules/life-red.png" alt="red life" draggable="false" />
-              </div>
+              <div class="orbit__lives" aria-label="Extra lives: earn five white hits, three gold hits or one red hit"></div>
               <div class="orbit__dial"><img src="./assets/modules/orbit-dial.png" alt="" draggable="false" /><canvas width="600" height="600" aria-hidden="true"></canvas></div>
               <span class="orbit__feedback" aria-live="off"></span>
               <div class="orbit__overlay"><strong class="orbit__message">Tap when the hand meets the bar</strong><button class="orbit__action" type="button">Start</button></div>
@@ -230,17 +204,20 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-    <!-- Hidden hooks kept for existing game logic (not shown in Figma Main). -->
-    <span id="turnDot" hidden></span>
     <span id="turnText" role="status" aria-live="polite" class="sr-only">Red to move</span>
 
-    <script src="./src/home-drag.js?v=46" defer></script>
-    <script src="./src/experience.js?v=46" defer></script>
-    <script src="./src/clock.js?v=46" defer></script>
-    <script src="./src/orbit.js?v=46" defer></script>
-    <script src="./src/modules.js?v=46" defer></script>
-    <script src="./src/app.js?v=46" defer></script>
-    <script src="./src/background-flow.js?v=46" defer></script>
-    <script src="./src/home-motion.js?v=46" defer></script>
+    <script src="./src/config.js?v=48" defer></script>
+    <script src="./src/home-drag.js?v=48" defer></script>
+    <script src="./src/experience.js?v=48" defer></script>
+    <script src="./src/game.js?v=48" defer></script>
+    <script src="./src/board-renderer.js?v=48" defer></script>
+    <script src="./src/note-canvas.js?v=48" defer></script>
+    <script src="./src/timeline.js?v=48" defer></script>
+    <script src="./src/clock.js?v=48" defer></script>
+    <script src="./src/orbit.js?v=48" defer></script>
+    <script src="./src/modules.js?v=48" defer></script>
+    <script src="./src/app.js?v=48" defer></script>
+    <script src="./src/background-flow.js?v=48" defer></script>
+    <script src="./src/home-motion.js?v=48" defer></script>
   </body>
 </html>

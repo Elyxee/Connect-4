@@ -1,5 +1,8 @@
-/* Screen presentation only. Board, clock and notebook state stay in app.js. */
+/* Screen presentation only: opening screen, Home ⇄ game cloud transition,
+   press feedback and Home sticker tap reactions. Board, clock and notebook
+   state stay in app.js. Timings live in CONFIG.screen. */
 (() => {
+  const T = CONFIG.screen;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const boot = document.getElementById('bootScreen');
   const curtain = document.getElementById('cloudTransition');
@@ -9,8 +12,10 @@
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
   let busy = true;
-  const bounded = promise => Promise.race([promise.catch(() => {}), delay(8000)]);
-  const extraImages = ['./assets/figma/board-live.png', './assets/figma/chip-red-enamel.svg', './assets/figma/chip-yellow-enamel.svg', './assets/modules/clock-cover.png', './assets/modules/orbit-bg.png'];
+  const bounded = promise => Promise.race([promise.catch(() => {}), delay(T.assetTimeout)]);
+  // Art that is not an <img> in index.html: canvas art, CSS backgrounds, generated icons.
+  const { board, chips, orbitLives, cssBackgrounds } = CONFIG.assets;
+  const extraImages = [board, ...Object.values(chips), ...cssBackgrounds, ...Object.values(orbitLives)];
   const images = [...document.images, ...extraImages.map(src => { const img = new Image(); img.src = src; return img; })];
   const assetsReady = Promise.all([bounded(document.fonts.ready), ...images.map(img => bounded(img.decode()))]);
   home.inert = true;
@@ -39,9 +44,9 @@
     assetsReady,
     async ready() {
       await assetsReady;
-      await delay(Math.max(0, 650 - (performance.now() - started)));
+      await delay(Math.max(0, T.bootMinimum - (performance.now() - started)));
       await frame();
-      const animation = await animate(boot, [{opacity:1}, {opacity:0}], {duration:reduce.matches ? 0 : 260, fill:'forwards'});
+      const animation = await animate(boot, [{opacity:1}, {opacity:0}], {duration:reduce.matches ? 0 : T.bootFade, fill:'forwards'});
       boot.hidden = true;
       animation.cancel();
       document.body.classList.remove('booting');
@@ -66,14 +71,14 @@
       try {
         animations.push(...await Promise.all(clouds.map((cloud, i) => animate(cloud,
           [{transform:'translateX(115%)'}, {transform:'translateX(0)'}],
-          {duration:reduce.matches ? 0 : 470, delay:reduce.matches ? 0 : i*45, easing:'cubic-bezier(.35,0,.2,1)', fill:'forwards'}))));
+          {duration:reduce.matches ? 0 : T.cloudIn, delay:reduce.matches ? 0 : i*T.cloudInStagger, easing:'cubic-bezier(.35,0,.2,1)', fill:'forwards'}))));
         await swap();
         if (document.body.dataset.screen === 'game') window.homeStickers?.reset();
         // Let layout, canvas and the background paint while completely covered.
         await frame(); await frame();
         animations.push(...await Promise.all(clouds.map((cloud, i) => animate(cloud,
           [{transform:'translateX(0)'}, {transform:'translateX(115%)'}],
-          {duration:reduce.matches ? 0 : 540, delay:reduce.matches ? 0 : (2-i)*35, easing:'cubic-bezier(.55,0,.3,1)', fill:'forwards'}))));
+          {duration:reduce.matches ? 0 : T.cloudOut, delay:reduce.matches ? 0 : (clouds.length-1-i)*T.cloudOutStagger, easing:'cubic-bezier(.55,0,.3,1)', fill:'forwards'}))));
         return true;
       } finally {
         curtain.hidden = true;
@@ -95,6 +100,7 @@
   document.addEventListener('pointercancel', release, true);
   window.addEventListener('blur', () => { pressed.forEach(button => button.classList.remove('is-pressed')); pressed.clear(); });
 
+  // Tap reactions for Home stickers, chosen by each sticker's data-react in index.html.
   const moves = {
     chip: ['scale(1)', 'translateY(-16%) rotate(18deg) scale(1.08)', 'translateY(3%) rotate(-5deg)', 'none'],
     edge: ['scaleY(1)', 'translateY(-12%) scaleY(.86)', 'translateY(4%) scaleY(1.06)', 'none'],
@@ -109,9 +115,8 @@
     logo: ['none', 'translateY(-5%) scale(1.035)', 'translateY(1%) scale(.99)', 'none'],
     rays: ['scale(1)', 'scale(1.25)', 'scale(.9)', 'none']
   };
-  home.querySelectorAll('.home__piece:not(.home__button)').forEach(piece => {
-    const names = piece.className;
-    const kind = names.includes('rays') ? 'rays' : /chip-edge|chip-corner/.test(names) ? 'edge' : Object.keys(moves).find(key => names.includes(key)) || 'rays';
+  home.querySelectorAll('.home__piece[data-react]').forEach(piece => {
+    const kind = piece.dataset.react;
     piece.removeAttribute('aria-hidden');
     piece.setAttribute('role', 'button'); piece.tabIndex = 0;
     piece.setAttribute('aria-label', `Animate ${kind === 'logo' ? 'Connect 4Live' : kind}`);

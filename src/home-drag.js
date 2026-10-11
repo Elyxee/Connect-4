@@ -1,4 +1,5 @@
-/* Movable Home stickers. Offsets live only until the next game entry. */
+/* Movable Home stickers. Offsets are stored as fractions of the scene size and
+   live only until the next game entry (experience.js calls reset()). */
 class HomeStickers {
   constructor(home) {
     this.home = home;
@@ -38,7 +39,7 @@ class HomeStickers {
     const g = this.gesture;
     if (!g || event.pointerId !== g.id) return;
     const dx = event.clientX-g.x, dy = event.clientY-g.y;
-    if (!g.dragging && Math.hypot(dx,dy) < 8) return;
+    if (!g.dragging && Math.hypot(dx,dy) < CONFIG.homeDrag.startDistance) return;
     g.dragging = true;
     g.piece.classList.add('is-dragging');
     g.piece.classList.remove('is-pressed');
@@ -54,7 +55,7 @@ class HomeStickers {
     this.gesture = null;
     if (g.dragging) {
       this.keepReachable(g.piece);
-      this.suppressed = {piece:g.piece,until:performance.now()+650};
+      this.suppressed = {piece:g.piece,until:performance.now()+CONFIG.homeDrag.clickSuppress};
       event.preventDefault();
     }
     g.piece.classList.remove('is-dragging');
@@ -67,7 +68,7 @@ class HomeStickers {
     this.positions.set(g.piece,g.previous);
     this.paint(g.piece,g.previous);
     g.piece.classList.remove('is-dragging','is-pressed');
-    this.suppressed = {piece:g.piece,until:performance.now()+650};
+    this.suppressed = {piece:g.piece,until:performance.now()+CONFIG.homeDrag.clickSuppress};
     if (g.piece.hasPointerCapture(g.id)) g.piece.releasePointerCapture(g.id);
   }
   paint(piece,position,scene=this.scene.getBoundingClientRect()) {
@@ -76,7 +77,7 @@ class HomeStickers {
   keepReachable(piece) {
     // Allow partial off-screen play, but retain a finger-sized grab area.
     const rect=piece.getBoundingClientRect(),view=this.home.getBoundingClientRect();
-    const margin=Math.min(44,rect.width/2,rect.height/2);
+    const margin=Math.min(CONFIG.homeDrag.grabMargin,rect.width/2,rect.height/2);
     const dx=Math.max(view.left+margin-rect.right,Math.min(0,view.right-margin-rect.left));
     const dy=Math.max(view.top+margin-rect.bottom,Math.min(0,view.bottom-margin-rect.top));
     const scene=this.scene.getBoundingClientRect();

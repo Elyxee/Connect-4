@@ -1,14 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const vm = require('node:vm');
-const path = require('node:path');
+const { loadScripts } = require('./helpers/load.cjs');
 
 function fixture(preset = '5+5') {
-  const context = vm.createContext({ performance, Date, document: { addEventListener() {} } });
-  const root = path.join(__dirname, '..');
-  vm.runInContext(fs.readFileSync(path.join(root, 'src/clock.js'), 'utf8') + '\n' +
-    fs.readFileSync(path.join(root, 'src/app.js'), 'utf8') + '\nthis.classes = {GameState, GameClock};', context);
+  const context = loadScripts({ performance, Date }, ['config', 'game', 'clock']);
+  vm.runInContext('this.classes = {GameState, GameClock};', context);
   const { GameState, GameClock } = context.classes;
   const game = new GameState();
   let now = 0;

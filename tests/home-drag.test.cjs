@@ -1,8 +1,6 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const vm=require('node:vm');
-const fs=require('node:fs');
-const path=require('node:path');
+const {loadScripts}=require('./helpers/load.cjs');
 function fixture(){
   const handlers={};let sceneWidth=1000;
   const rect=(left,top,width,height)=>({left,top,width,height,right:left+width,bottom:top+height});
@@ -15,8 +13,7 @@ function fixture(){
   const pieces=[piece(),piece()];
   const scene={getBoundingClientRect:()=>rect(0,0,sceneWidth,800)};
   const home={inert:false,hidden:false,querySelector:()=>scene,querySelectorAll:()=>pieces,getBoundingClientRect:()=>rect(0,0,sceneWidth,800),addEventListener:(name,fn)=>handlers[name]=fn};
-  const context=vm.createContext({window:{addEventListener(){}},document:{getElementById:()=>home,addEventListener(){}},ResizeObserver:class{observe(){}},performance:{now:()=>0}});
-  vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/home-drag.js'),'utf8'),context);
+  const context=loadScripts({window:{addEventListener(){}},document:{getElementById:()=>home,addEventListener(){}},ResizeObserver:class{observe(){}},performance:{now:()=>0}},['config','home-drag']);
   const controller=context.window.homeStickers;
   const event=(x,y,target=pieces[0])=>({isPrimary:true,button:0,pointerId:1,clientX:x,clientY:y,target,preventDefault(){this.prevented=true;},stopImmediatePropagation(){this.stopped=true;}});
   return {controller,pieces,event,handlers,resize:width=>{sceneWidth=width;controller.resize();}};
