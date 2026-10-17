@@ -1,0 +1,25 @@
+# Development dependencies and local state (at any depth).
+node_modules/
+.git/
+.wrangler/
+.vite/
+.DS_Store
+
+# Native app, tooling, tests and unused artwork references.
+/ios/
+/scripts/
+/tests/
+/assets/reference/
+/assets/**/reference/
+
+# Repository metadata and deployment configuration.
+*.md
+/.gitignore
+/.assetsignore
+/wrangler.jsonc
+/package.json
+/bun.lock
+/bun.lockb
+/package-lock.json
+/pnpm-lock.yaml
+/yarn.lock

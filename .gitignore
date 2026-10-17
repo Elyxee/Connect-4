@@ -1,5 +1,6 @@
 .DS_Store
 .vite/
+.wrangler/
 node_modules/
 # Xcode per-user UI state
 xcuserdata/

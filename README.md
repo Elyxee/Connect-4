@@ -4,6 +4,22 @@ A static iPad PWA with no build step. Serve the folder over HTTP and open
 `index.html` (for example `python3 -m http.server 8080`). The iOS app in `ios/`
 is a WKWebView shell that copies these files into its bundle at build time.
 
+## Website deployment (Cloudflare Workers)
+
+The website serves the same files as the iPad app. In Cloudflare Workers Builds,
+use the repository root, leave the build command empty, and keep the deploy
+command as `npx wrangler deploy`.
+
+`wrangler.jsonc` fixes the Worker name (`connect-4`) and asset directory (`.`).
+The root `.assetsignore` excludes development dependencies, the iOS project,
+tests, tools, reference artwork and repository metadata from uploads. Runtime
+files (`index.html`, `src/`, production `assets/`, `manifest.json` and `sw.js`)
+keep their existing paths. No generated copy or build step is needed.
+
+Keep future hosting settings in `wrangler.jsonc` and upload exclusions in
+`.assetsignore`; new runtime assets belong in `assets/`, outside `reference/`.
+See Cloudflare's [asset exclusion documentation](https://developers.cloudflare.com/workers/static-assets/binding/#ignoring-assets).
+
 ## Where to change things
 
 | To change… | Edit |
