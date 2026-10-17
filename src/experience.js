@@ -1,6 +1,7 @@
-/* Screen presentation only: opening screen, Home ⇄ game cloud transition,
-   press feedback and Home sticker tap reactions. Board, clock and notebook
-   state stay in app.js. Timings live in CONFIG.screen. */
+/* Screen presentation only: opening screen (with real loading progress),
+   Home ⇄ game cloud transition and press feedback. Home's own effects live in
+   home-fx.js; board, clock and notebook state stay in app.js. Timings live in
+   CONFIG.screen. */
 (() => {
   const T = CONFIG.screen;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -17,7 +18,11 @@
   const { board, chips, orbitLives, cssBackgrounds } = CONFIG.assets;
   const extraImages = [board, ...Object.values(chips), ...cssBackgrounds, ...Object.values(orbitLives)];
   const images = [...document.images, ...extraImages.map(src => { const img = new Image(); img.src = src; return img; })];
-  const assetsReady = Promise.all([bounded(document.fonts.ready), ...images.map(img => bounded(img.decode()))]);
+  const setProgress = value => boot.style.setProperty('--progress', value.toFixed(3));
+  const tasks = [bounded(document.fonts.ready), ...images.map(img => bounded(img.decode()))];
+  let settled = 0;
+  tasks.forEach(task => task.then(() => setProgress(++settled / tasks.length)));
+  const assetsReady = Promise.all(tasks);
   home.inert = true;
 
   // iOS otherwise turns a held illustration into a selectable image range.
@@ -45,8 +50,12 @@
     async ready() {
       await assetsReady;
       await delay(Math.max(0, T.bootMinimum - (performance.now() - started)));
+      setProgress(1);
+      await delay(reduce.matches ? 0 : T.bootFinish);
       await frame();
-      const animation = await animate(boot, [{opacity:1}, {opacity:0}], {duration:reduce.matches ? 0 : T.bootFade, fill:'forwards'});
+      // Home pops in while the opening screen zooms away.
+      window.homeFx?.intro();
+      const animation = await animate(boot, [{opacity:1, transform:'scale(1)'}, {opacity:0, transform:'scale(1.08)'}], {duration:reduce.matches ? 0 : T.bootFade, easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards'});
       boot.hidden = true;
       animation.cancel();
       document.body.classList.remove('booting');
@@ -54,7 +63,7 @@
     },
     failed() {
       boot.hidden = false;
-      boot.querySelector('span').textContent = 'Couldn’t finish loading.';
+      boot.querySelector('.boot__label').textContent = 'Couldn’t finish loading.';
       const retry = document.createElement('button');
       retry.textContent = 'Try again';
       retry.addEventListener('click', () => location.reload());
@@ -76,6 +85,7 @@
         if (document.body.dataset.screen === 'game') window.homeStickers?.reset();
         // Let layout, canvas and the background paint while completely covered.
         await frame(); await frame();
+        if (document.body.dataset.screen === 'home') window.homeFx?.intro({quick:true});
         animations.push(...await Promise.all(clouds.map((cloud, i) => animate(cloud,
           [{transform:'translateX(0)'}, {transform:'translateX(115%)'}],
           {duration:reduce.matches ? 0 : T.cloudOut, delay:reduce.matches ? 0 : (clouds.length-1-i)*T.cloudOutStagger, easing:'cubic-bezier(.55,0,.3,1)', fill:'forwards'}))));
@@ -99,35 +109,4 @@
   document.addEventListener('pointerup', release, true);
   document.addEventListener('pointercancel', release, true);
   window.addEventListener('blur', () => { pressed.forEach(button => button.classList.remove('is-pressed')); pressed.clear(); });
-
-  // Tap reactions for Home stickers, chosen by each sticker's data-react in index.html.
-  const moves = {
-    chip: ['scale(1)', 'translateY(-16%) rotate(18deg) scale(1.08)', 'translateY(3%) rotate(-5deg)', 'none'],
-    edge: ['scaleY(1)', 'translateY(-12%) scaleY(.86)', 'translateY(4%) scaleY(1.06)', 'none'],
-    heart: ['scale(1)', 'scale(1.24)', 'scale(.94)', 'scale(1.16)', 'none'],
-    swan: ['scaleY(1)', 'translateY(-5%) scaleY(1.05)', 'translateY(1%) scaleY(.97)', 'none'],
-    bulb: ['scale(1)', 'scale(1.1)', 'scale(.98)', 'none'],
-    controller: ['none', 'translateY(-6%)', 'translateY(4%)', 'translateY(-3%)', 'none'],
-    star: ['none', 'rotate(36deg) scale(1.18)', 'rotate(-8deg)', 'none'],
-    burst: ['scale(1)', 'scale(.78)', 'scale(1.2)', 'none'],
-    bubble: ['scaleY(1)', 'scaleY(.82)', 'scaleY(1.13)', 'none'],
-    bolt: ['scaleY(1)', 'scaleY(.85)', 'scaleY(1.12)', 'none'],
-    logo: ['none', 'translateY(-5%) scale(1.035)', 'translateY(1%) scale(.99)', 'none'],
-    rays: ['scale(1)', 'scale(1.25)', 'scale(.9)', 'none']
-  };
-  home.querySelectorAll('.home__piece[data-react]').forEach(piece => {
-    const kind = piece.dataset.react;
-    piece.removeAttribute('aria-hidden');
-    piece.setAttribute('role', 'button'); piece.tabIndex = 0;
-    piece.setAttribute('aria-label', `Animate ${kind === 'logo' ? 'Connect 4Live' : kind}`);
-    let reaction;
-    const react = () => {
-      reaction?.cancel();
-      const img = piece.querySelector('img');
-      reaction = img.animate(reduce.matches ? [{opacity:.7}, {opacity:1}] : moves[kind].map(transform => ({transform})),
-        {duration:reduce.matches ? 120 : kind === 'controller' ? 420 : 720, easing:'cubic-bezier(.22,.8,.3,1)'});
-    };
-    piece.addEventListener('click', react);
-    piece.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); react(); } });
-  });
 })();

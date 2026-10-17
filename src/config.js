@@ -111,13 +111,30 @@ const CONFIG = (() => {
     screen: {
       assetTimeout: 8000,
       bootMinimum: 650,
-      bootFade: 260,
+      bootFinish: 260, // the progress bar completes before the screen leaves
+      bootFade: 420,
       cloudIn: 470,
       cloudInStagger: 45,
       cloudOut: 540,
       cloudOutStagger: 35,
     },
 
-    homeDrag: { startDistance: 8, clickSuppress: 650, grabMargin: 44 },
+    homeDrag: { startDistance: 8, clickSuppress: 650, grabMargin: 44, maxTilt: 14 }, // tilt in degrees
+
+    home: {
+      // WebGL water behind the Home stickers (src/home-flow.js).
+      flow: {
+        speed: 1, // animation speed multiplier
+        dotSpacing: 14, // halftone grid, CSS px
+        rippleSpeed: 520, // CSS px per second
+        introDuration: 1100, // pools growing in after the opening screen
+        maxPixelRatio: 2,
+        maxPixels: 4.6e6, // drawing-buffer budget; lowered automatically on slow devices
+      },
+      // Stickers popping in after the opening screen / returning from a game.
+      intro: { duration: 680, stagger: 38 },
+      // Tap particles (src/home-fx.js).
+      fx: { maxParticles: 320, ink: "#242137", colors: ["#FF2D6D", "#FFD21E", "#266BFF", "#2CCEEE", "#FF8A00"] },
+    },
   });
 })();

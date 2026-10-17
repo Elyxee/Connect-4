@@ -273,7 +273,10 @@ button:active:not(:disabled){filter:brightness(1.08)}
    so a cut edge never exposes a seam. All three buttons stay in the safe centre. */
 @media(orientation:landscape){.home__scene{width:calc(max(100vw,143.16547dvh) + 28px)}}
 @media(orientation:landscape) and (min-aspect-ratio:2/1){.home__scene{height:100dvh;aspect-ratio:auto}}
-.home__water{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.home__water,.home__flow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.home__flow{display:block}
+/* src/home-flow.js draws the water when WebGL is available; the SVG is the fallback. */
+.home--flow .home__water{visibility:hidden}
 
 /* Stickers: complete vector art, contained (never sliced), draggable via home-drag.js. */
 .home__piece{position:absolute;padding:0;border:0;background:transparent;touch-action:none;cursor:grab}
@@ -281,7 +284,8 @@ button:active:not(:disabled){filter:brightness(1.08)}
 .home__piece img{display:block;width:100%;height:100%;object-fit:contain;overflow:visible;pointer-events:none;backface-visibility:hidden}
 .home__piece:focus-visible{outline:3px solid #266bff;outline-offset:3px;border-radius:20px}
 .home__piece.is-pressed{scale:.96}
-.home__piece.is-dragging{animation-play-state:paused!important;scale:1!important;transition:none!important;will-change:translate}
+/* A dragged sticker lifts slightly; home-drag.js leans it with the drag speed. */
+.home__piece.is-dragging{animation-play-state:paused!important;scale:1.06!important;transition:none!important;will-change:translate,rotate}
 .home__button.is-dragging{cursor:grabbing}
 .home__piece.is-dragging img{animation-play-state:paused!important}
 .home__button{transition:transform 180ms,filter 180ms}
@@ -317,14 +321,13 @@ button:active:not(:disabled){filter:brightness(1.08)}
 
 /* Ambient sticker motion. */
 .home__logo{animation:home-title-lift 4.2s ease-in-out infinite}
-.home__logo img,.home__new img{filter:saturate(1.14) contrast(1.025)}
 .home__chip-red,.home__chip-gold,.home__chip-bottom{animation:coin-turn 6s ease-in-out infinite}
 .home__chip-gold{animation-delay:-2s;animation-duration:7s}
 .home__chip-bottom{animation-delay:-3.5s;animation-duration:8s}
 .home__chip-corner{animation:edge-coin-drift 7.5s -1s ease-in-out infinite}
 .home__chip-edge{animation:edge-coin-drift 6s -4s ease-in-out infinite}
 .home__heart{animation:heart-beat 3.2s ease-in-out infinite}
-.home__bulb{animation:bulb-glow 4s ease-in-out infinite}
+.home__bulb{animation:bulb-sway 4s ease-in-out infinite;transform-origin:50% 80%}
 .home__swan{animation:swan-greet 7s ease-in-out infinite}
 .home__controller{animation:controller-rumble 5s ease-in-out infinite}
 .home__star-left{animation:star-turn 10s ease-in-out infinite}
@@ -333,26 +336,41 @@ button:active:not(:disabled){filter:brightness(1.08)}
 .home__bubble{animation:bubble-float 6.5s ease-in-out infinite}
 .home__bolt{animation:bolt-charge 4s -2s ease-in-out infinite}
 .home__new img{animation:primary-invite 4.8s ease-in-out infinite}
-.home__recent img{animation:recent-gloss 6s -2s ease-in-out infinite}
 .home__new-rays-left,.home__new-rays-right{animation:rays-pulse 4.8s ease-in-out infinite}
 .home__logo-rays-left,.home__logo-rays-right{animation:rays-pulse 5.5s ease-in-out infinite}
+/* Glows are separate layers (opacity/scale only) so the vector art never goes
+   through a filter and stays sharp. */
+.home__bulb::before,.home__bolt::before{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none;background:radial-gradient(circle,#ffe75acc 0,#ffd21e66 42%,#ffd21e00 70%);animation:glow-pulse 4s ease-in-out infinite}
+.home__bulb,.home__bolt{isolation:isolate}
+.home__bulb::before{left:16%;top:6%;width:68%;height:62%}
+.home__bolt::before{left:-10%;top:5%;width:120%;height:90%;animation-delay:-2s;animation-duration:4s}
+@keyframes glow-pulse{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.18)}}
+/* A gloss sweep runs down the three buttons, masked to each button's artwork. */
+.home__button::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,#fff0 36%,#ffffff70 46%,#ffffffb0 50%,#ffffff70 54%,#fff0 64%) 160% 0/260% 100% no-repeat;-webkit-mask:var(--art) center/contain no-repeat;mask:var(--art) center/contain no-repeat;animation:button-shine 5.6s ease-in-out infinite}
+.home__new{--art:url('../assets/home/vector/new.svg')}
+.home__continue{--art:url('../assets/home/vector/continue.svg')}
+.home__continue::after{animation-delay:.32s}
+.home__recent{--art:url('../assets/home/vector/recent.svg')}
+.home__recent::after{animation-delay:.64s}
+@keyframes button-shine{0%,64%{background-position:160% 0}84%,100%{background-position:-60% 0}}
+/* Tap particles (src/home-fx.js) sit above the stickers. */
+.home__fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 /* Motion pauses while booting, in the game, or when the page is hidden. */
-.booting .home__piece,.booting .home__piece img{animation-play-state:paused!important}
-body[data-screen="game"] .home__piece,body[data-screen="game"] .home__piece img,.motion-paused .home__piece,.motion-paused .home__piece img{animation-play-state:paused}
+.booting .home__piece,.booting .home__piece img,.booting .home__piece::before,.booting .home__piece::after{animation-play-state:paused!important}
+body[data-screen="game"] .home__piece,body[data-screen="game"] .home__piece img,body[data-screen="game"] .home__piece::before,body[data-screen="game"] .home__piece::after,.motion-paused .home__piece,.motion-paused .home__piece img,.motion-paused .home__piece::before,.motion-paused .home__piece::after{animation-play-state:paused}
 @keyframes home-title-lift{0%,100%{transform:translateY(0) rotate(-.5deg)}50%{transform:translateY(-4%) rotate(.5deg)}}
 @keyframes coin-turn{0%,100%{transform:perspective(600px) translateY(0) rotateY(-10deg) rotate(-3deg)}50%{transform:perspective(600px) translateY(-6%) rotateY(18deg) rotate(5deg)}}
 @keyframes edge-coin-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-9%)}}
 @keyframes heart-beat{0%,45%,100%{transform:scale(1)}12%{transform:scale(1.1)}24%{transform:scale(1.015)}34%{transform:scale(1.07)}}
-@keyframes bulb-glow{0%,100%{filter:drop-shadow(0 0 0 #ffc82a00)}50%{filter:drop-shadow(0 0 12px #ffcc32bb) brightness(1.12)}}
+@keyframes bulb-sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.5deg) scale(1.03)}}
 @keyframes swan-greet{0%,65%,100%{transform:translateY(0)}25%{transform:translateY(-3%) scaleY(1.015)}43%{transform:translateY(-1%)}}
 @keyframes controller-rumble{0%,65%,90%,100%{transform:translateY(0)}70%,78%,86%{transform:translateY(-1.5%)}74%,82%{transform:translateY(1.5%)}}
 @keyframes star-turn{0%,60%,100%{transform:rotate(0)}30%{transform:rotate(22deg)}}
-@keyframes star-spark{0%,100%{transform:scale(.95);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.12)}}
+@keyframes star-spark{0%,100%{transform:scale(.95) rotate(-4deg)}50%{transform:scale(1.08) rotate(6deg)}}
 @keyframes burst-pop{0%,65%,100%{transform:scale(1)}25%{transform:scale(1.08)}40%{transform:scale(.98)}}
 @keyframes bubble-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6%)}}
-@keyframes bolt-charge{0%,100%{filter:brightness(1)}45%{filter:brightness(1.3) drop-shadow(0 0 4px #ffdc22)}}
+@keyframes bolt-charge{0%,38%,52%,100%{transform:none}42%{transform:rotate(-5deg) scale(1.06)}47%{transform:rotate(4deg) scale(1.04)}}
 @keyframes primary-invite{0%,65%,100%{transform:scale(1)}35%{transform:scale(1.025)}}
-@keyframes recent-gloss{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
 @keyframes rays-pulse{0%,100%{opacity:.65;transform:scale(.96)}50%{opacity:1;transform:scale(1.06)}}
 
 /* ---------- Screen transition: opaque cloud banks hide the layout change ---------- */
@@ -419,7 +437,7 @@ body[data-screen="game"] .home__piece,body[data-screen="game"] .home__piece img,
  .orbit__life,.orbit__logo{transition:none}
  .orbit[data-status="over"] .orbit__overlay{animation:none}
  .analysis__moves,.analysis__paper{transition:none}
- .home__piece,.home__piece img{animation:none!important;transition:none!important}
+ .home__piece,.home__piece img,.home__piece::before,.home__piece::after{animation:none!important;transition:none!important}
  .analysis__swan{animation:none!important}
  .module__slide,button{transition:none!important}
 }

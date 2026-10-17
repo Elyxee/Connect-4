@@ -25,6 +25,7 @@ Each starts and stops its own static server and headless Chromium
 | `notes-browser.cjs` | Notes page, ink, eraser hold, undo/redo |
 | `workspace-ink-browser.cjs` | Full-workspace ink routing with real touch input |
 | `home-browser.cjs` | Home layout, New/Continue, reduced motion |
+| `home-effects-browser.cjs` | WebGL water, drag tilt/landing, tap particles, intro on return, pause during a game |
 | `display-browser.cjs` | iPad sizes, canvas density, background motion |
 
 ## Clock rules

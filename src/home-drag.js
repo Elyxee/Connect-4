@@ -1,5 +1,7 @@
 /* Movable Home stickers. Offsets are stored as fractions of the scene size and
-   live only until the next game entry (experience.js calls reset()). */
+   live only until the next game entry (experience.js calls reset()). A dragged
+   sticker leans with its speed; onDrop(piece, {x, y, tilt}) lets home-fx.js
+   animate the landing. */
 class HomeStickers {
   constructor(home) {
     this.home = home;
@@ -32,7 +34,8 @@ class HomeStickers {
     const scene = this.scene.getBoundingClientRect();
     const previous = this.positions.get(piece) || {x:0,y:0};
     this.gesture = {piece,id:event.pointerId,x:event.clientX,y:event.clientY,previous,
-      dx:previous.x * scene.width,dy:previous.y * scene.height,dragging:false};
+      dx:previous.x * scene.width,dy:previous.y * scene.height,dragging:false,
+      lastX:event.clientX,lastTime:event.timeStamp || 0,tilt:0};
     piece.setPointerCapture(event.pointerId);
   }
   move(event) {
@@ -48,6 +51,12 @@ class HomeStickers {
     const position = {x:(g.dx+dx)/scene.width,y:(g.dy+dy)/scene.height};
     this.positions.set(g.piece,position);
     this.paint(g.piece,position,scene);
+    // Lean into the movement, smoothed so the sticker swings rather than jitters.
+    const now = event.timeStamp || 0, max = CONFIG.homeDrag.maxTilt;
+    const speed = (event.clientX - g.lastX) / Math.max(8, now - g.lastTime);
+    g.tilt = g.tilt * 0.75 + Math.max(-max, Math.min(max, speed * 10)) * 0.25;
+    g.lastX = event.clientX; g.lastTime = now;
+    g.piece.style.rotate = `${g.tilt.toFixed(2)}deg`;
   }
   end(event) {
     const g = this.gesture;
@@ -56,6 +65,8 @@ class HomeStickers {
     if (g.dragging) {
       this.keepReachable(g.piece);
       this.suppressed = {piece:g.piece,until:performance.now()+CONFIG.homeDrag.clickSuppress};
+      g.piece.style.removeProperty('rotate');
+      this.onDrop?.(g.piece,{x:event.clientX,y:event.clientY,tilt:g.tilt});
       event.preventDefault();
     }
     g.piece.classList.remove('is-dragging');
@@ -67,6 +78,7 @@ class HomeStickers {
     this.gesture = null;
     this.positions.set(g.piece,g.previous);
     this.paint(g.piece,g.previous);
+    g.piece.style.removeProperty('rotate');
     g.piece.classList.remove('is-dragging','is-pressed');
     this.suppressed = {piece:g.piece,until:performance.now()+CONFIG.homeDrag.clickSuppress};
     if (g.piece.hasPointerCapture(g.id)) g.piece.releasePointerCapture(g.id);
@@ -95,7 +107,7 @@ class HomeStickers {
   reset() {
     this.cancel();this.positions.clear();this.suppressed=null;this.front=10;
     for (const piece of this.pieces) {
-      piece.style.removeProperty('translate');piece.style.removeProperty('z-index');
+      piece.style.removeProperty('translate');piece.style.removeProperty('rotate');piece.style.removeProperty('z-index');
       piece.classList.remove('is-dragging','is-pressed');
     }
   }

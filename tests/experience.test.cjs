@@ -4,7 +4,7 @@ const { loadScripts } = require('./helpers/load.cjs');
 
 function fixture() {
   const pending = [], events = {};
-  const element = () => ({hidden:false,inert:false,children:[],classList:{add(){},remove(){}},querySelectorAll:()=>[],
+  const element = () => ({hidden:false,inert:false,children:[],classList:{add(){},remove(){}},querySelectorAll:()=>[],style:{setProperty(){}},
     animate(){let finish; const finished=new Promise(r=>finish=r);const animation={finished,cancel(){this.cancelled=true;}};pending.push({finish,animation});return animation;}});
   const home=element(), game=element(), boot=element(), curtain=element();curtain.hidden=true;
   curtain.children=[element(),element(),element()];

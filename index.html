@@ -9,14 +9,31 @@
     <meta name="theme-color" content="#FF7BAE" />
 
     <style>
+      /* Opening screen: inline so it paints before anything else loads. */
       html,body{margin:0;background:#fffaf0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-      .boot{position:fixed;inset:0;z-index:1000;display:grid;place-content:center;gap:24px;text-align:center;background:#fffaf0;color:#242137;font:700 18px system-ui}
-      .boot[hidden]{display:none}.boot__chips{display:flex;justify-content:center;gap:15px}.boot__chips i{width:30px;height:30px;border:3px solid #242137;border-radius:50%;background:#ff287a;box-shadow:0 4px #242137;animation:boot-hop .9s ease-in-out infinite alternate}.boot__chips i:nth-child(2){background:#ffda25;animation-delay:.18s}.boot__chips i:nth-child(3){background:#2783ff;animation-delay:.36s}@keyframes boot-hop{to{transform:translateY(-15px)}}
-      @media(prefers-reduced-motion:reduce){.boot__chips i{animation:none}}
+      .boot{--slot:clamp(44px,7.4vmin,76px);position:fixed;inset:0;z-index:1000;display:grid;place-content:center;justify-items:center;gap:calc(var(--slot)*.62);overflow:hidden;background:#fffaf0;color:#242137;font:800 clamp(18px,3vmin,28px)/1.2 ui-rounded,"SF Pro Rounded","Avenir Next",system-ui,sans-serif;letter-spacing:.01em}
+      .boot[hidden]{display:none}
+      .boot__pool{position:absolute;width:64vmax;height:64vmax;border-radius:42% 58% 63% 37%/41% 44% 56% 59%;background:radial-gradient(circle,#0000001c 2.4px,transparent 2.9px) 0 0/14px 14px,var(--c);animation:boot-pool 9s ease-in-out infinite alternate}
+      .boot__pool:nth-child(1){--c:#ff74ab;left:-40vmax;top:-44vmax}
+      .boot__pool:nth-child(2){--c:#ffe14a;right:-42vmax;top:-40vmax;animation-delay:-3s}
+      .boot__pool:nth-child(3){--c:#3fb2ff;left:-30vmax;bottom:-46vmax;animation-delay:-5s}
+      .boot__pool:nth-child(4){--c:#ff74ab;right:-44vmax;bottom:-48vmax;animation-delay:-7s}
+      @keyframes boot-pool{50%{border-radius:58% 42% 37% 63%/56% 59% 41% 44%}to{transform:rotate(40deg) scale(1.06)}}
+      .boot__board{position:relative;display:flex;gap:calc(var(--slot)*.26);padding:calc(var(--slot)*.26) calc(var(--slot)*.34);background:#266bff;border:4px solid #242137;border-radius:calc(var(--slot)*.56);box-shadow:0 7px 0 #242137,inset 0 -6px 0 #1a4fd0}
+      .boot__slot{position:relative;width:var(--slot);height:var(--slot);border-radius:50%;background:#153d9e;box-shadow:inset 0 5px 0 #0d2a73,0 0 0 3px #242137}
+      .boot__slot::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ffffffb8 0 13%,transparent 14%),radial-gradient(circle,var(--chip) 0 50%,#00000024 51% 57%,var(--chip) 58%);box-shadow:0 0 0 3px #242137;animation:boot-chip 2.8s cubic-bezier(.3,.7,.4,1) calc(var(--i)*.16s) infinite both}
+      .boot__slot:nth-child(odd){--chip:#ff2d6d}.boot__slot:nth-child(even){--chip:#ffd21e}
+      @keyframes boot-chip{0%{transform:translateY(-160%);opacity:0}9%{opacity:1}16%{transform:translateY(0)}21%{transform:translateY(-16%)}26%{transform:scale(1.07,.93)}30%,62%{transform:none}68%{transform:scale(1.18)}74%,86%{transform:none;opacity:1}100%{transform:translateY(190%);opacity:0}}
+      .boot__bar{width:calc(var(--slot)*5.4);max-width:72vw;height:calc(var(--slot)*.4);padding:3px;border:3px solid #242137;border-radius:99px;background:#fff;box-shadow:0 4px 0 #242137;box-sizing:border-box}
+      .boot__bar i{display:block;height:100%;min-width:10px;width:calc(var(--progress,0)*100%);border-radius:99px;background:repeating-linear-gradient(-45deg,#ff2d6d 0 8px,#ff6a9a 8px 16px) 0 0/22.63px 22.63px;transition:width .35s cubic-bezier(.3,.8,.3,1);animation:boot-stripes .6s linear infinite}
+      @keyframes boot-stripes{to{background-position:22.63px 0}}
+      .boot__label,.boot__bar,.boot__board{position:relative}
+      .boot button{font:inherit;padding:10px 24px;border:3px solid #242137;border-radius:99px;background:#ffd21e;color:#242137;box-shadow:0 4px 0 #242137}
+      @media(prefers-reduced-motion:reduce){.boot__pool,.boot__slot::after,.boot__bar i{animation:none}}
     </style>
     <link rel="manifest" href="./manifest.json" />
     <link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
-    <link rel="stylesheet" href="./src/style.css?v=48" />
+    <link rel="stylesheet" href="./src/style.css?v=49" />
     <link rel="preload" as="image" href="./assets/clock/setup.png" />
     <link rel="preload" as="image" href="./assets/clock/full-red.png" />
     <link rel="preload" as="image" href="./assets/clock/full-yellow.png" />
@@ -26,7 +43,12 @@
     <title>Connect4 Live</title>
   </head>
   <body data-screen="home" class="booting">
-    <div class="boot" id="bootScreen" role="status" aria-live="polite"><div class="boot__chips" aria-hidden="true"><i></i><i></i><i></i></div><span>Getting ready to play…</span></div>
+    <div class="boot" id="bootScreen" role="status" aria-live="polite">
+      <div class="boot__pool"></div><div class="boot__pool"></div><div class="boot__pool"></div><div class="boot__pool"></div>
+      <div class="boot__board" aria-hidden="true"><i class="boot__slot" style="--i:0"></i><i class="boot__slot" style="--i:1"></i><i class="boot__slot" style="--i:2"></i><i class="boot__slot" style="--i:3"></i></div>
+      <div class="boot__bar" aria-hidden="true"><i></i></div>
+      <span class="boot__label">Getting ready to play…</span>
+    </div>
     <div class="cloudTransition" id="cloudTransition" hidden aria-hidden="true"><div class="cloud cloud--pink"></div><div class="cloud cloud--cream"></div><div class="cloud cloud--blue"></div></div>
 <section class="home" id="homeScreen" aria-label="Connect 4Live home"><div class="home__scene">
 <svg class="home__water" viewBox="0 0 760 570" preserveAspectRatio="none" aria-hidden="true"><defs>
@@ -45,28 +67,29 @@
 <use href="#water-blue" fill="url(#home-blue)"/><use href="#water-blue" fill="url(#home-blue-dots)"/>
 <use href="#water-pink-bottom" fill="url(#home-pink)"/><use href="#water-pink-bottom" fill="url(#home-dots)"/>
 </svg>
-<div class="home__piece home__logo" data-react="logo" role="img" aria-label="Connect 4Live"><img src="./assets/home/vector/logo.svg?v=48" alt="" draggable="false"/></div>
-<button class="home__piece home__button home__new" id="home-new" type="button" aria-label="New Game"><img src="./assets/home/vector/new.svg?v=48" alt="" draggable="false"/></button>
-<button class="home__piece home__button home__continue" id="home-continue" type="button" aria-label="Continue"><img src="./assets/home/vector/continue.svg?v=48" alt="" draggable="false"/></button>
-<button class="home__piece home__button home__recent" id="home-recent" type="button" aria-label="Recent Games"><img src="./assets/home/vector/recent.svg?v=48" alt="" draggable="false"/></button>
-<div class="home__piece home__chip-red" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-red.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-gold" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-gold.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__heart" data-react="heart" aria-hidden="true"><img src="./assets/home/vector/heart.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__swan" data-react="swan" aria-hidden="true"><img src="./assets/home/vector/swan.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__bulb" data-react="bulb" aria-hidden="true"><img src="./assets/home/vector/bulb.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__controller" data-react="controller" aria-hidden="true"><img src="./assets/home/vector/controller.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__star-left" data-react="star" aria-hidden="true"><img src="./assets/home/vector/star-left.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__star-bottom" data-react="star" aria-hidden="true"><img src="./assets/home/vector/star-bottom.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__burst" data-react="burst" aria-hidden="true"><img src="./assets/home/vector/burst.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__bubble" data-react="bubble" aria-hidden="true"><img src="./assets/home/vector/bubble.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-bottom" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-bottom.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-corner" data-react="edge" aria-hidden="true"><img src="./assets/home/vector/chip-corner.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__chip-edge" data-react="edge" aria-hidden="true"><img src="./assets/home/vector/chip-edge.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__bolt" data-react="bolt" aria-hidden="true"><img src="./assets/home/vector/bolt.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__new-rays-left" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/new-rays-left.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__new-rays-right" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/new-rays-right.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__logo-rays-left" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/logo-rays-left.svg?v=48" alt="" draggable="false"/></div>
-<div class="home__piece home__logo-rays-right" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/logo-rays-right.svg?v=48" alt="" draggable="false"/></div>
+<canvas class="home__flow" id="homeFlow" aria-hidden="true"></canvas>
+<div class="home__piece home__logo" data-react="logo" role="img" aria-label="Connect 4Live"><img src="./assets/home/vector/logo.svg?v=49" alt="" draggable="false"/></div>
+<button class="home__piece home__button home__new" id="home-new" type="button" aria-label="New Game"><img src="./assets/home/vector/new.svg?v=49" alt="" draggable="false"/></button>
+<button class="home__piece home__button home__continue" id="home-continue" type="button" aria-label="Continue"><img src="./assets/home/vector/continue.svg?v=49" alt="" draggable="false"/></button>
+<button class="home__piece home__button home__recent" id="home-recent" type="button" aria-label="Recent Games"><img src="./assets/home/vector/recent.svg?v=49" alt="" draggable="false"/></button>
+<div class="home__piece home__chip-red" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-red.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-gold" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-gold.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__heart" data-react="heart" aria-hidden="true"><img src="./assets/home/vector/heart.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__swan" data-react="swan" aria-hidden="true"><img src="./assets/home/vector/swan.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__bulb" data-react="bulb" aria-hidden="true"><img src="./assets/home/vector/bulb.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__controller" data-react="controller" aria-hidden="true"><img src="./assets/home/vector/controller.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__star-left" data-react="star" aria-hidden="true"><img src="./assets/home/vector/star-left.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__star-bottom" data-react="star" aria-hidden="true"><img src="./assets/home/vector/star-bottom.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__burst" data-react="burst" aria-hidden="true"><img src="./assets/home/vector/burst.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__bubble" data-react="bubble" aria-hidden="true"><img src="./assets/home/vector/bubble.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-bottom" data-react="chip" aria-hidden="true"><img src="./assets/home/vector/chip-bottom.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-corner" data-react="edge" aria-hidden="true"><img src="./assets/home/vector/chip-corner.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__chip-edge" data-react="edge" aria-hidden="true"><img src="./assets/home/vector/chip-edge.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__bolt" data-react="bolt" aria-hidden="true"><img src="./assets/home/vector/bolt.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__new-rays-left" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/new-rays-left.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__new-rays-right" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/new-rays-right.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__logo-rays-left" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/logo-rays-left.svg?v=49" alt="" draggable="false"/></div>
+<div class="home__piece home__logo-rays-right" data-react="rays" aria-hidden="true"><img src="./assets/home/vector/logo-rays-right.svg?v=49" alt="" draggable="false"/></div>
 </div></section>
     <div class="app" id="appRoot" inert aria-hidden="true">
       <button id="btnHome" class="homeReturn" type="button" aria-label="Return to Home" title="Return to Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7L17 17M17 7L7 17"/></svg></button>
@@ -77,8 +100,8 @@
       <main class="main">
         <section class="stage">
           <div class="brandLogo" role="img" aria-label="Connect 4Live">
-            <img class="brandLogo__connect" src="./assets/figma/main-connect-sharp.svg?v=48" alt="" draggable="false" />
-            <img class="brandLogo__live" src="./assets/figma/main-4live-sharp.svg?v=48" alt="" draggable="false" />
+            <img class="brandLogo__connect" src="./assets/figma/main-connect-sharp.svg?v=49" alt="" draggable="false" />
+            <img class="brandLogo__live" src="./assets/figma/main-4live-sharp.svg?v=49" alt="" draggable="false" />
           </div>
 
           <div class="boardWrap" id="boardWrap">
@@ -99,7 +122,7 @@
           </div>
         </section>
 
-        <img class="analysis__swan" src="./assets/figma/swan-painter.png?v=48" alt="" draggable="false" aria-hidden="true" />
+        <img class="analysis__swan" src="./assets/figma/swan-painter.png?v=49" alt="" draggable="false" aria-hidden="true" />
         <aside class="rail" aria-label="Side panels">
           <section class="analysis" aria-label="Analysis and notes" data-page="moves" data-editing="false">
 
@@ -207,18 +230,20 @@
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
     <span id="turnText" role="status" aria-live="polite" class="sr-only">Red to move</span>
 
-    <script src="./src/config.js?v=48" defer></script>
-    <script src="./src/home-drag.js?v=48" defer></script>
-    <script src="./src/experience.js?v=48" defer></script>
-    <script src="./src/game.js?v=48" defer></script>
-    <script src="./src/board-renderer.js?v=48" defer></script>
-    <script src="./src/note-canvas.js?v=48" defer></script>
-    <script src="./src/timeline.js?v=48" defer></script>
-    <script src="./src/clock.js?v=48" defer></script>
-    <script src="./src/orbit.js?v=48" defer></script>
-    <script src="./src/modules.js?v=48" defer></script>
-    <script src="./src/app.js?v=48" defer></script>
-    <script src="./src/background-flow.js?v=48" defer></script>
-    <script src="./src/home-motion.js?v=48" defer></script>
+    <script src="./src/config.js?v=49" defer></script>
+    <script src="./src/home-drag.js?v=49" defer></script>
+    <script src="./src/home-flow.js?v=49" defer></script>
+    <script src="./src/home-fx.js?v=49" defer></script>
+    <script src="./src/experience.js?v=49" defer></script>
+    <script src="./src/game.js?v=49" defer></script>
+    <script src="./src/board-renderer.js?v=49" defer></script>
+    <script src="./src/note-canvas.js?v=49" defer></script>
+    <script src="./src/timeline.js?v=49" defer></script>
+    <script src="./src/clock.js?v=49" defer></script>
+    <script src="./src/orbit.js?v=49" defer></script>
+    <script src="./src/modules.js?v=49" defer></script>
+    <script src="./src/app.js?v=49" defer></script>
+    <script src="./src/background-flow.js?v=49" defer></script>
+    <script src="./src/home-motion.js?v=49" defer></script>
   </body>
 </html>

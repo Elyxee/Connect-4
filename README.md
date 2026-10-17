@@ -21,8 +21,10 @@ service-worker cache name. `npm test` checks that they agree.
 | File | Responsibility |
 | --- | --- |
 | `config.js` | All tunable values (`CONFIG`) |
-| `home-drag.js` | Draggable Home stickers |
-| `experience.js` | Opening screen, Home ⇄ game cloud transition, press feedback, sticker tap reactions |
+| `home-drag.js` | Draggable Home stickers (lean with drag speed) |
+| `home-flow.js` | WebGL water behind Home: flowing halftone pools, sparkles, tap ripples |
+| `home-fx.js` | Home tap reactions, particle bursts, button confetti, sticker pop-in |
+| `experience.js` | Opening screen with loading progress, Home ⇄ game cloud transition, press feedback |
 | `game.js` | Game model: players, win detection, move tree with variations (no DOM) |
 | `board-renderer.js` | Board canvases: chips, drop animation frames, column highlight, win light |
 | `note-canvas.js` | Ink surface with pressure and undo history |
@@ -56,7 +58,7 @@ Swipes, arrow keys, Back, Live Clock and New already handle any number of modes.
 | `src/` | Running JavaScript and stylesheet |
 | `assets/figma/`, `assets/home/vector/`, `assets/modules/`, `assets/clock/`, `assets/fonts/` | Artwork and fonts loaded by the app |
 | `assets/**/reference/`, `assets/reference/` | Earlier exports and design references (not loaded, not bundled into iOS) |
-| `scripts/` | `bump-version.cjs` and the artwork preparation tools |
+| `scripts/` | `bump-version.cjs`, `rebuild-home-art.sh` (clean Home vectors from the traced originals) and older artwork tools |
 | `tests/` | Logic tests and browser checks (see `tests/README.md`) |
 | `ios/` | Xcode project for the WKWebView shell |
 
