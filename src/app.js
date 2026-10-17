@@ -869,7 +869,6 @@ function setup() {
     updateInputRouting();
     timeline.render();
     drawStatic();
-    showToast("New game");
   }
   btnNew.addEventListener("click", resetGame);
 
